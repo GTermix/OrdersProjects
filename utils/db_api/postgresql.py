@@ -70,7 +70,8 @@ class Database:
         description TEXT NULL,
         category_id INT NOT NULL,
         image_url VARCHAR(255) NOT NULL,
-        price NUMERIC NOT NULL
+        price NUMERIC NOT NULL,
+        discount INT DEFAULT 0
         );
         """
         await self.execute(sql, execute=True)
@@ -97,10 +98,10 @@ class Database:
         sql = "SELECT * FROM category"
         await self.execute(sql, execute=True)
 
-    async def add_product(self, title, description, category_id, image_url, price):
-        sql = "INSERT INTO product (title, description, category_id, image_url, price) VALUES($1, $2, $3, $4, " \
-              "$5) returning *"
-        return await self.execute(sql, title, description, category_id, image_url, price, fetchrow=True)
+    async def add_product(self, title, description, category_id, image_url, price, discount):
+        sql = "INSERT INTO product (title, description, category_id, image_url, price, discount) VALUES($1, $2, $3, " \
+              "$4, $5,$6) returning *"
+        return await self.execute(sql, title, description, category_id, image_url, price, dicount, fetchrow=True)
 
     async def add_category(self, title: str):
         sql = "INSERT INTO users (title) VALUES($1) returning *"

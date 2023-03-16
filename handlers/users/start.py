@@ -14,7 +14,7 @@ async def bot_start(message: types.Message):
         user = await db.add_user(
             telegram_id=message.from_user.id,
             full_name=message.from_user.full_name,
-            username=message.from_user.username,
+            username=message.from_user.username
         )
         # ADMINGA xabar beramiz
         count = await db.count_users()
@@ -23,3 +23,4 @@ async def bot_start(message: types.Message):
     # user = await db.select_user(telegram_id=message.from_user.id)
     await bot.send_message(chat_id=ADMINS[0], text=f"@{name} ")
     await message.answer(f"Xush kelibsiz! @{name}",reply_markup=categories)
+print("main")
