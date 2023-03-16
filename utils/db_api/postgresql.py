@@ -20,13 +20,13 @@ class Database:
         )
 
     async def execute(
-        self,
-        command,
-        *args,
-        fetch: bool = False,
-        fetchval: bool = False,
-        fetchrow: bool = False,
-        execute: bool = False,
+            self,
+            command,
+            *args,
+            fetch: bool = False,
+            fetchval: bool = False,
+            fetchrow: bool = False,
+            execute: bool = False,
     ):
         async with self.pool.acquire() as connection:
             connection: Connection
@@ -51,6 +51,64 @@ class Database:
         );
         """
         await self.execute(sql, execute=True)
+
+    async def create_table_category(self):
+        sql = """
+        CREATE TABLE IF NOT EXISTS category (
+        id SERIAL PRIMARY KEY,
+        title VARCHAR(255) NOT NULL unique
+        );
+        """
+        await self.execute(sql, execute=True)
+
+    async def create_table_product(self):
+        """Productlar jadvalini yaratish"""
+        sql = """
+        CREATE TABLE IF NOT EXISTS product (
+        id SERIAL PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        description TEXT NULL,
+        category_id INT NOT NULL,
+        image_url VARCHAR(255) NOT NULL,
+        price NUMERIC NOT NULL
+        );
+        """
+        await self.execute(sql, execute=True)
+
+    async def create_table_order(self):
+        sql = """
+        CREATE TABLE IF NOT EXISTS order (
+        user_id INT NOT NULL,
+        product_id INT NOT NULL,
+        count INT NOT NULL DEFAULT 1
+        );
+        """
+        await self.execute(sql, execute=True)
+
+    async def get_data_from_user(self):
+        sql = "SELECT * FROM users"
+        await self.execute(sql, execute=True)
+
+    async def get_data_from_product(self):
+        sql = "SELECT * FROM product"
+        await self.execute(sql, execute=True)
+
+    async def get_data_from_category(self):
+        sql = "SELECT * FROM category"
+        await self.execute(sql, execute=True)
+
+    async def add_product(self, title, description, category_id, image_url, price):
+        sql = "INSERT INTO product (title, description, category_id, image_url, price) VALUES($1, $2, $3, $4, " \
+              "$5) returning *"
+        return await self.execute(sql, title, description, category_id, image_url, price, fetchrow=True)
+
+    async def add_category(self, title: str):
+        sql = "INSERT INTO users (title) VALUES($1) returning *"
+        return await self.execute(sql, title, fetchrow=True)
+
+    async def add_order(self, user_id, product_id, count=1):
+        sql = "INSERT INTO users (user_id, product_id, count) VALUES($1, $2, $3) returning *"
+        return await self.execute(sql, user_id, product_id, count, fetchrow=True)
 
     @staticmethod
     def format_args(sql, parameters: dict):
