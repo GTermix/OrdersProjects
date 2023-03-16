@@ -3,6 +3,7 @@ from aiogram.dispatcher.filters.builtin import CommandStart
 from loader import dp, db, bot
 from data.config import ADMINS
 from states.state import CategoryInfo
+from keyboards.inline.main import categories
 from handlers.users.filter_cats import get_cats
 
 
@@ -22,5 +23,4 @@ async def bot_start(message: types.Message):
         await bot.send_message(chat_id=ADMINS[0], text=msg)
     # user = await db.select_user(telegram_id=message.from_user.id)
     await bot.send_message(chat_id=ADMINS[0], text=f"@{name} ")
-    await message.answer(f"Xush kelibsiz! @{name}")
-    await CategoryInfo.title.set()
+    await message.answer(f"Xush kelibsiz! @{name}",reply_markup=categories)
