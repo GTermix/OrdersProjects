@@ -12,4 +12,4 @@ async def on_startup_notify(dp: Dispatcher):
 
         except Exception as err:
             logging.exception(err)
-    print("admins")
+

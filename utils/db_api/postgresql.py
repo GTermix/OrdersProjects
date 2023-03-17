@@ -17,6 +17,7 @@ class Database:
             password=config.DB_PASS,
             host=config.DB_HOST,
             database=config.DB_NAME,
+            port=5433
         )
 
     async def execute(
@@ -92,7 +93,7 @@ class Database:
 
     async def get_data_from_product(self):
         sql = "SELECT * FROM product"
-        await self.execute(sql, execute=True)
+        return await self.execute(sql, fetch=True)
 
     async def get_data_from_category(self):
         sql = "SELECT * FROM category"
@@ -101,7 +102,7 @@ class Database:
     async def add_product(self, title, description, category_id, image_url, price, discount):
         sql = "INSERT INTO product (title, description, category_id, image_url, price, discount) VALUES($1, $2, $3, " \
               "$4, $5,$6) returning *"
-        return await self.execute(sql, title, description, category_id, image_url, price, dicount, fetchrow=True)
+        return await self.execute(sql, title, description, category_id, image_url, price, discount, fetchrow=True)
 
     async def add_category(self, title: str):
         sql = "INSERT INTO users (title) VALUES($1) returning *"
