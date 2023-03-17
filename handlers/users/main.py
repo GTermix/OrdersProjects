@@ -1,12 +1,32 @@
 from loader import dp, db, bot
 from data.config import ADMINS
 from aiogram import types
+from aiogram.types import Message as M
 from aiogram.dispatcher import FSMContext
 from states.state import ProductInfo, AddCategory
-from keyboards.inline.main import confirm, cats
+from keyboards.inline.main import *
+from keyboards.default.main import *
 
 
-@dp.callback_query_handler(text="add_category")
+@dp.message_handler(text='Kategoriya paneli')
+async def cat_panel(message: M):
+    await message.answer("Kategoriyalar panelidasiz kerakli buyruqlaringizni yugmalar orqali bering",
+                         reply_markup=back1())
+    await message.answer("Kerakli bo'limni tanlang", reply_markup=kats())
+
+
+@dp.message_handler(text="Mahsulot paneli")
+async def pro_panel(message: M):
+    await message.answer("Mahsulotlar panelidasiz kerakli buyruqlarni tugmalar orqali bering", reply_markup=back1())
+    await message.answer("Kerakli bo'limni talang", reply_markup=product())
+
+
+@dp.message_handler(text="Orqaga qaytish")
+async def back1a(message: M):
+    await message.answer("Bosh menyu", reply_markup=main_markup(message.from_user.id))
+
+
+@dp.callback_query_handler(text="add_cat")
 async def add_category(call: types.CallbackQuery):
     await call.message.answer("Kategoriya nomini kiriting")
     await AddCategory.title.set()
@@ -18,8 +38,8 @@ async def addcategory(message: types.Message):
     await message.answer("Yangi kategoriya qo'shildi")
 
 
-@dp.message_handler(commands=["add_product"])
-async def product(message: types.Message):
+@dp.callback_query_handler(text="add_pro")
+async def product_fun(message: types.Message):
     await message.answer("Masulot nomini kiriting")
     await ProductInfo.title.set()
 
@@ -63,3 +83,4 @@ async def product_discount(message: types.Message, state: FSMContext):
                    f"Mahsulot narxi: {data.get('price')} so'm\n\n" \
                    f"Chegirmalar mavjud emas {data.get('discount')} %"
     await message.answer_photo(photo=data.get('photo'), caption=product_info, reply_markup=confirm)
+    await state.finish()

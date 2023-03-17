@@ -2,7 +2,7 @@ from aiogram import types
 from aiogram.dispatcher.filters.builtin import CommandStart
 from loader import dp, db, bot
 from data.config import ADMINS
-from keyboards.inline.main import cats
+from keyboards.default.main import main_markup
 
 
 @dp.message_handler(CommandStart(), state="*")
@@ -21,5 +21,4 @@ async def bot_start(message: types.Message):
         await bot.send_message(chat_id=ADMINS[0], text=msg)
     # user = await db.select_user(telegram_id=message.from_user.id)
     await bot.send_message(chat_id=ADMINS[0], text=f"@{name} botga qo'shildi")
-    c = await cats()
-    await message.answer(f"Xush kelibsiz! @{name}", reply_markup=c)
+    await message.answer(f"Xush kelibsiz! @{name}", reply_markup=main_markup(str(message.from_user.id)))
