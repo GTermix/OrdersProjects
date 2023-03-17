@@ -3,7 +3,7 @@ from data.config import ADMINS
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from states.state import ProductInfo
-from keyboards.inline import *
+from keyboards.inline import confirm, categories
 
 
 @dp.callback_query_handler(text="add_category", state='*')
@@ -33,16 +33,27 @@ async def product_desc(message: types.Message, state: FSMContext):
 
 
 @dp.message_handler(content_types="photo", state=ProductInfo.picture)
-async def product_photo(message: types.Message, state: FSMContext)
-    await state.update_data({"picture": message.photo[-1].file_id})
+async def product_photo(message: types.Message, state: FSMContext):
+    await state.update_data({"photo": message.photo[-1].file_id})
     await message.answer("Mahsulot narxini kiriting")
     await ProductInfo.next()
 
 
 @dp.message_handler(state=ProductInfo.price)
-async def product_price(message: types.Message, state:FSMContext):
+async def product_price(message: types.Message, state: FSMContext):
     await state.update_data({"price": float(message.text)})
-    await message.answer("Bu mahsulotlar uchun chegirmalar mavjudmi bo'lsa kiriting foizini kitiing misol 25 yo'q bo'lsa 0 ni")
+    await message.answer(
+        "Bu mahsulotlar uchun chegirmalar mavjudmi bo'lsa kiriting foizini kiting.\nMisol 25 yo'q bo'lsa 0 ni")
     await ProductInfo.next()
 
 
+@dp.message_handler(state=ProductInfo.discount)
+async def product_discount(message: types.Message, state: FSMContext):
+    await state.update_data({"discount": float(message.text)})
+    data = await state.get_data()
+    product_info = f"Mahsulot kategoriyasi: {data.get('category')}\n\n" \
+                   f"Mahsulot nomi: {data.get('title')}\n\n" \
+                   f"Mahsulot tavsifi: {data.get('description')}\n\n" \
+                   f"Mahsulot narxi: {data.get('price')} so'm\n\n" \
+                   f"Chegirmalar mavjud emas {data.get('discount')} %"
+    await message.answer_photo(photo=data.get('photo'), caption=product_info, reply_markup=confirm)
