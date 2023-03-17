@@ -7,8 +7,9 @@ confirm.add(InlineKeyboardButton("✅ Ha", callback_data="yes"), InlineKeyboardB
 
 async def cats():
     categories = InlineKeyboardMarkup()
-    c1 = await db.get_data_from_user()
+    c1 = await db.get_data_from_category()
     for cat in c1:
-        print(cats)
+        print(type(cat[1]))
+        categories.insert(InlineKeyboardButton(cat[1], callback_data=cat[1]))
     categories.add(InlineKeyboardButton("➕ Kategoriya qo'shish", callback_data="add_category"))
-print(catego)
+    return categories

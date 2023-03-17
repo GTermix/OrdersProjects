@@ -2,11 +2,10 @@ from aiogram import types
 from aiogram.dispatcher.filters.builtin import CommandStart
 from loader import dp, db, bot
 from data.config import ADMINS
-from keyboards.inline.main import categories
+from keyboards.inline.main import cats
 
 
-@dp.message_handler(commands=["start"])
-@dp.message_handler(CommandStart())
+@dp.message_handler(CommandStart(), state="*")
 async def bot_start(message: types.Message):
     name = message.from_user.username
     user = await db.select_user(telegram_id=message.from_user.id)
@@ -21,6 +20,6 @@ async def bot_start(message: types.Message):
         msg = f"@{user[2]} bazaga qo'shildi.\nBazada {count} ta foydalanuvchi bor."
         await bot.send_message(chat_id=ADMINS[0], text=msg)
     # user = await db.select_user(telegram_id=message.from_user.id)
-    await bot.send_message(chat_id=ADMINS[0], text=f"@{name} ")
-    await message.answer(f"Xush kelibsiz! @{name}",reply_markup=categories)
-print("main")
+    await bot.send_message(chat_id=ADMINS[0], text=f"@{name} botga qo'shildi")
+    c = await cats()
+    await message.answer(f"Xush kelibsiz! @{name}", reply_markup=c)

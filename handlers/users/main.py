@@ -2,14 +2,20 @@ from loader import dp, db, bot
 from data.config import ADMINS
 from aiogram import types
 from aiogram.dispatcher import FSMContext
-from states.state import ProductInfo
-from keyboards.inline import confirm, categories
+from states.state import ProductInfo, AddCategory
+from keyboards.inline.main import confirm, cats
 
 
-@dp.callback_query_handler(text="add_category", state='*')
+@dp.callback_query_handler(text="add_category")
 async def add_category(call: types.CallbackQuery):
     await call.message.answer("Kategoriya nomini kiriting")
-    await db.add_category(call.message.text)
+    await AddCategory.title.set()
+
+
+@dp.message_handler(state=AddCategory.title)
+async def addcategory(message: types.Message):
+    await db.add_category(message.text)
+    await message.answer("Yangi kategoriya qo'shildi")
 
 
 @dp.message_handler(commands=["add_product"])

@@ -17,7 +17,7 @@ class Database:
             password=config.DB_PASS,
             host=config.DB_HOST,
             database=config.DB_NAME,
-            port=5433
+            port=5432
         )
 
     async def execute(
@@ -89,15 +89,15 @@ class Database:
 
     async def get_data_from_user(self):
         sql = "SELECT * FROM users"
-        await self.execute(sql, execute=True)
+        return await self.execute(sql, execute=True)
 
     async def get_data_from_product(self):
         sql = "SELECT * FROM product"
-        return await self.execute(sql, fetch=True)
+        return await self.execute(sql, fetchrow=True, execute=True)
 
     async def get_data_from_category(self):
         sql = "SELECT * FROM category"
-        await self.execute(sql, execute=True)
+        return await self.execute(sql, fetch=True, execute=True)
 
     async def add_product(self, title, description, category_id, image_url, price, discount):
         sql = "INSERT INTO product (title, description, category_id, image_url, price, discount) VALUES($1, $2, $3, " \
@@ -105,11 +105,11 @@ class Database:
         return await self.execute(sql, title, description, category_id, image_url, price, discount, fetchrow=True)
 
     async def add_category(self, title: str):
-        sql = "INSERT INTO users (title) VALUES($1) returning *"
-        return await self.execute(sql, title, fetchrow=True)
+        sql = "INSERT INTO category (title) VALUES($1) returning *"
+        await self.execute(sql, title, fetchrow=True)
 
     async def add_order(self, user_id, product_id, count=1):
-        sql = "INSERT INTO users (user_id, product_id, count) VALUES($1, $2, $3) returning *"
+        sql = "INSERT INTO order (user_id, product_id, count) VALUES($1, $2, $3) returning *"
         return await self.execute(sql, user_id, product_id, count, fetchrow=True)
 
     @staticmethod
