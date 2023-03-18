@@ -151,5 +151,11 @@ class Database:
     async def delete_users(self):
         await self.execute("DELETE FROM Users WHERE TRUE", execute=True)
 
+    async def delete_category(self, id):
+        await self.execute("DELETE FROM category WHERE id=$1", id, execute=True)
+
+    async def delete_product(self, id):
+        await self.execute("DELETE FROM product WHERE id=$1", id, execute=True)
+
     async def drop_users(self):
         await self.execute("DROP TABLE Users", execute=True)

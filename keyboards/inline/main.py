@@ -11,8 +11,8 @@ async def cats(chatId):
     c1 = await db.get_data_from_category()
     for cat in c1:
         categories.insert(InlineKeyboardButton(cat[1], callback_data=cat[1]))
-    if str(chatId) in ADMINS:
-        categories.add(InlineKeyboardButton("➕ Kategoriya qo'shish", callback_data="add_category"))
+    # if str(chatId) in ADMINS:
+    #     categories.add(InlineKeyboardButton("➕ Kategoriya qo'shish", callback_data="add_category"))
     return categories
 
 
@@ -20,6 +20,7 @@ def kats():
     cat = InlineKeyboardMarkup()
     cat.row(InlineKeyboardButton("Qo'shish", callback_data="add_cat"),
             InlineKeyboardButton("O'chirish", callback_data="del_cat"))
+    cat.row(InlineKeyboardButton("Kategoriyani zaxiralash", callback_data="backup"))
     return cat
 
 

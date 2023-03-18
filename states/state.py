@@ -17,3 +17,8 @@ class ProductInfo(StatesGroup):
     price = State()
     discount = State()
     confirmed = State()
+
+
+class DeleteFromDB(StatesGroup):
+    confirmation = State()
+    deletion = State()
