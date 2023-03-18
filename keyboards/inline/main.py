@@ -1,16 +1,18 @@
 from loader import db
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from data.config import ADMINS
 
 confirm = InlineKeyboardMarkup()
 confirm.add(InlineKeyboardButton("✅ Ha", callback_data="yes"), InlineKeyboardButton("❎ Yo'q", callback_data="no"))
 
 
-async def cats():
+async def cats(chatId):
     categories = InlineKeyboardMarkup()
     c1 = await db.get_data_from_category()
     for cat in c1:
         categories.insert(InlineKeyboardButton(cat[1], callback_data=cat[1]))
-    categories.add(InlineKeyboardButton("➕ Kategoriya qo'shish", callback_data="add_category"))
+    if str(chatId) in ADMINS:
+        categories.add(InlineKeyboardButton("➕ Kategoriya qo'shish", callback_data="add_category"))
     return categories
 
 

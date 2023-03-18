@@ -99,6 +99,14 @@ class Database:
         sql = "SELECT * FROM category"
         return await self.execute(sql, fetch=True, execute=True)
 
+    async def get_data_from_category_id(self, title):
+        sql = "SELECT id FROM category WHERE title=$1"
+        return await self.execute(sql, title, fetchval=True, execute=True)
+
+    async def get_data_from_category_title(self, id):
+        sql = "SELECT title FROM category WHERE id=$1"
+        return await self.execute(sql, id, fetchval=True, execute=True)
+
     async def add_product(self, title, description, category_id, image_url, price, discount):
         sql = "INSERT INTO product (title, description, category_id, image_url, price, discount) VALUES($1, $2, $3, " \
               "$4, $5,$6) returning *"
