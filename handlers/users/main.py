@@ -122,6 +122,6 @@ async def product_discount(message: types.Message, state: FSMContext):
 async def add_to_products(call: types.CallbackQuery, state: FSMContext):
     await call.message.answer("Mahsulot bazaga qo'shildi")
     data = await state.get_data()
-    db.add_product(data.get("title"), data.get("desc"), data.get("cat_id"), data.get("photo"), data.get("price"),
-                   data.get("discount"))
+    await db.add_product(data.get("title"), data.get("desc"), data.get("cat_id"), data.get("photo"), data.get("price"),
+                         data.get("discount"))
     await state.finish()

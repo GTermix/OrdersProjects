@@ -70,9 +70,9 @@ class Database:
         title VARCHAR(255) NOT NULL,
         description TEXT NULL,
         category_id INT NOT NULL,
-        image_url VARCHAR(255) NOT NULL,
+        image_url text NOT NULL,
         price NUMERIC NOT NULL,
-        discount INT DEFAULT 0
+        discount NUMERIC DEFAULT 0
         );
         """
         await self.execute(sql, execute=True)
