@@ -22,6 +22,7 @@ async def main_menu_panel(message: M, state: FSMContext):
     cat_markup = await cats(message.from_user.id)
     if msg == "Buyurtma berish":
         await message.answer("Buyurtma berish uchun kategoriya tanlang", reply_markup=cat_markup)
+        await PlaceOrder.category.set()
     elif msg == "Savatcha":
         await message.answer("Savatcha bo'limidasiz")
     elif msg == "Bog'lanish":
@@ -39,3 +40,10 @@ async def main_menu_panel(message: M, state: FSMContext):
         await message.answer("Aynan kimga xabar yuborishni xoxlaysiz")
     else:
         await message.answer("Menga tugmalar orqali buyruq bering")
+
+
+@dp.message_handler(text="Bosh menyu", state='*')
+async def back_to_main(message: M, state: FSMContext):
+    await message.answer("Asosiy menyudasiz", reply_markup=main_markup(message.from_user.id))
+    await MainState.command.set()
+    await state.finish()

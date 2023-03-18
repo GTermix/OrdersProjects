@@ -31,11 +31,10 @@ def product():
     return cat
 
 
-async def prod():
+async def prod(cat_id):
     categories = InlineKeyboardMarkup()
-    c1 = await db.get_data_from_product()
+    c1 = await db.get_data_from_product_title(cat_id=cat_id)
     if c1:
         for cat in c1:
-            categories.insert(InlineKeyboardButton(cat[1], callback_data=cat[1]))
-    categories.add(InlineKeyboardButton("➕ Mahsulot qo'shish", callback_data="add_product"))
+            categories.insert(InlineKeyboardButton(cat['title'], callback_data=cat["title"]))
     return categories

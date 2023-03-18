@@ -22,3 +22,14 @@ class ProductInfo(StatesGroup):
 class DeleteFromDB(StatesGroup):
     confirmation = State()
     deletion = State()
+
+
+class BackupState(StatesGroup):
+    base = State()
+    copy = State()
+    confirm = State()
+
+
+class PlaceOrder(StatesGroup):
+    category = State()
+    product = State()

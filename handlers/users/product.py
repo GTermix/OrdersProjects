@@ -77,10 +77,8 @@ async def add_to_products(call: types.CallbackQuery, state: FSMContext):
     await db.add_product(data.get("title"), data.get("desc"), data.get("cat_id"), data.get("photo"), data.get("price"),
                          data.get("discount"))
     await state.finish()
-    await call.message.answer("Mahsulotlar panelidasiz kerakli buyruqlarni tugmalar orqali bering",
-                              reply_markup=back1())
-    await call.message.answer("Kerakli bo'limni talang", reply_markup=product())
-    await AddCategory.title.set()
+    await call.message.answer("Bosh menyudasiz kerakli bo'limni tanlang", reply_markup=main_markup(call.from_user.id))
+    await MainState.command.set()
 
 
 @dp.callback_query_handler(text="no", state=ProductInfo.confirmed)

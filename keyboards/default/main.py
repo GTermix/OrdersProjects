@@ -12,7 +12,8 @@ def main_markup(chatId):
         main.insert(KeyboardButton("Xabar yuborish"))
     return main
 
+
 def back1():
     m = ReplyKeyboardMarkup(resize_keyboard=True)
-    m.insert(KeyboardButton("Orqaga qaytish"))
+    m.insert(KeyboardButton("Bosh menyu"))
     return m

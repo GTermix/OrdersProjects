@@ -107,6 +107,10 @@ class Database:
         sql = "SELECT title FROM category WHERE id=$1"
         return await self.execute(sql, id, fetchval=True, execute=True)
 
+    async def get_data_from_product_title(self, cat_id):
+        sql = "SELECT title FROM product WHERE category_id=$1"
+        return await self.execute(sql, cat_id, fetch=True, execute=True)
+
     async def add_product(self, title, description, category_id, image_url, price, discount):
         sql = "INSERT INTO product (title, description, category_id, image_url, price, discount) VALUES($1, $2, $3, " \
               "$4, $5,$6) returning *"
@@ -147,6 +151,10 @@ class Database:
     async def update_user_username(self, username, telegram_id):
         sql = "UPDATE Users SET username=$1 WHERE telegram_id=$2"
         return await self.execute(sql, username, telegram_id, execute=True)
+
+    async def backup_products_to_category(self, base, copy):
+        sql = f"UPDATE product SET category_id={int(copy)} WHERE category_id={int(base)}"
+        return await self.execute(sql, execute=True)
 
     async def delete_users(self):
         await self.execute("DELETE FROM Users WHERE TRUE", execute=True)

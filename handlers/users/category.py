@@ -8,6 +8,50 @@ from keyboards.inline.main import *
 from keyboards.default.main import *
 
 
+@dp.callback_query_handler(text="backup")
+async def backup_category(call: types.CallbackQuery):
+    cat = await cats(call.from_user.id)
+    await call.message.edit_text("Zaxiralamoqchi bo'lgan kategoriyangizni tanlang", reply_markup=cat)
+    await BackupState.base.set()
+
+
+@dp.callback_query_handler(state=BackupState.base)
+async def backup_base(call: types.CallbackQuery, state: FSMContext):
+    cat_id = await db.get_data_from_category_id(call.data)
+    await state.update_data({"base": cat_id, "base_title": call.data})
+    cat = await cats(call.from_user.id)
+    await call.message.edit_text("Qaysi kategoriyaga zaxiralamoqchisiz", reply_markup=cat)
+    await BackupState.next()
+
+
+@dp.callback_query_handler(state=BackupState.copy)
+async def backup_copy(call: types.CallbackQuery, state: FSMContext):
+    cat_id = await db.get_data_from_category_id(call.data)
+    await state.update_data({"copy": cat_id, "copy_title": call.data})
+    await call.message.delete()
+    data = await state.get_data()
+    ans = f"Haqiqatdan ham <b>{data.get('base_title')}</b> kategoriyasidagi barcha mahsulotlarni {data.get('copy_title')} " \
+          f"ko'chirish(zaxiralash)ni xoxlaysizmi"
+    await call.message.answer(ans, reply_markup=confirm)
+    await BackupState.next()
+
+
+@dp.callback_query_handler(text="no", state=BackupState.confirm)
+async def backup_base(call: types.CallbackQuery, state: FSMContext):
+    await call.message.answer("Bosh menyudasiz", reply_markup=main_markup(call.from_user.id))
+    await state.finish()
+    await MainState.command.set()
+
+
+@dp.callback_query_handler(text="yes", state=BackupState.confirm)
+async def backup_base(call: types.CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    await db.backup_products_to_category(data.get('base'), data.get('copy'))
+    await call.message.delete()
+    await call.message.answer(f"{data.get('base_title')} kategoriyasidagi hamma ma'lumotlar {data.get('copy_title')} "
+                              f"kategoriyasiga ko'chirildi")
+
+
 @dp.callback_query_handler(text="add_cat")
 async def add_category(call: types.CallbackQuery):
     await call.message.answer("Kategoriya nomini kiriting")
