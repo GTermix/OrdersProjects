@@ -36,5 +36,12 @@ class PlaceOrder(StatesGroup):
     wait = State()
     last = State()
 
+
 class Cart(StatesGroup):
     command = State()
+
+
+class SendToUsers(StatesGroup):
+    msg = State()
+    random_send = State()
+    random_num = State()

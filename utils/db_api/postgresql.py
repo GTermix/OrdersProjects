@@ -5,6 +5,7 @@ from asyncpg import Connection
 from asyncpg.pool import Pool
 
 from data import config
+from data.config import ADMINS
 
 
 class Database:
@@ -97,6 +98,22 @@ class Database:
 
     async def get_data_from_category(self):
         sql = "SELECT * FROM category"
+        return await self.execute(sql, fetch=True, execute=True)
+
+    @staticmethod
+    async def format_admins_sql(sql_code: str, admins: list, command: str):
+        if len(admins) > 0:
+            sql_code += f"{command}={admins[0]} "
+            admins = admins[1:]
+            for i in admins:
+                sql_code += f"AND NOT {command}={i}"
+        else:
+            sql_code += f"{command}={admins[0]}"
+        return sql_code
+
+    async def get_data_from_user_id(self):
+        sql_code = "SELECT telegram_id FROM users WHERE NOT "
+        sql = await self.format_admins_sql(sql_code, ADMINS, "telegram_id")
         return await self.execute(sql, fetch=True, execute=True)
 
     async def get_data_from_category_id(self, title):

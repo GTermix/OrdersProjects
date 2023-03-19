@@ -22,17 +22,20 @@ async def main_menu_panel(message: M, state: FSMContext):
         c = await db.get_data_from_order_table(message.from_user.id)
         my_cart = ''
         total_price = 0
-        for i in c:
-            my_cart_data = await db.get_data_from_product_cart(i['product_id'])
-            price = i['count']
-            for j in my_cart_data:
-                my_cart += f"Mahsulot nomi: {j['title']}\nMahsulotlar soni {price}\nMahsulotlar narxi: " \
-                           f"{(float(j['price']) * ((100 - j['discount']) / 100)) * price}\n\n"
-                total_price += (float(j['price']) * ((100 - j['discount']) / 100)) * price
-        ans = msg + my_cart + f"Jami to'lov summasi: {total_price}"
+        if c:
+            for k in c:
+                my_cart_data = await db.get_data_from_product_cart(k['product_id'])
+                price = k['count']
+                for j in my_cart_data:
+                    my_cart += f"Mahsulot nomi: {j['title']}\nMahsulotlar soni {price}\nMahsulotlar narxi: " \
+                               f"{(float(j['price']) * ((100 - j['discount']) / 100)) * price} so'm\n\n"
+                    total_price += (float(j['price']) * ((100 - j['discount']) / 100)) * price
+            ans = msg + my_cart + f"Jami to'lov summasi: {total_price} so'm"
+        else:
+            ans = f"Hozircha savatchangiz bo'sh harid qiling va savatchangizni to'ldiring"
         await message.answer(ans)
     elif msg == "Bog'lanish":
-        await message.answer("Admin bilan bog'lanish",reply_markup=contact_with)
+        await message.answer("Admin bilan bog'lanish", reply_markup=contact_with)
     elif msg == "Kategoriya paneli":
         await message.answer("Kategoriyalar panelidasiz kerakli buyruqlaringizni yugmalar orqali bering",
                              reply_markup=back1())
@@ -43,7 +46,8 @@ async def main_menu_panel(message: M, state: FSMContext):
         await message.answer("Kerakli bo'limni talang", reply_markup=product())
         await state.finish()
     elif msg == "Xabar yuborish":
-        await message.answer("Xabarni kiriting")
+        await message.answer("Xabarni kiriting.\nXabaringiz aynan qanday bo;lsa shunday yetkaziladi", reply_markup=back1())
+        await SendToUsers.msg.set()
     else:
         await message.answer("Menga tugmalar orqali buyruq bering")
 

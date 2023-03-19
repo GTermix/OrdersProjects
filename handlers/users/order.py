@@ -17,6 +17,15 @@ async def back_to_cat(call: types.CallbackQuery):
     await PlaceOrder.category.set()
 
 
+@dp.callback_query_handler(text="back_to_cat", state=PlaceOrder.wait)
+async def category_back(call: types.CallbackQuery, state: FSMContext):
+    cat = await cats()
+    await call.message.delete()
+    await call.message.answer("Kategoriyalardan birini tanlang", reply_markup=cat)
+    await state.finish()
+    await PlaceOrder.category.set()
+
+
 @dp.callback_query_handler(state=PlaceOrder.category)
 async def cat_of_order(call: types.CallbackQuery, state: FSMContext):
     mark1 = await db.get_data_from_category_id(call.data)

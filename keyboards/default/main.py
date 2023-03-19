@@ -17,3 +17,8 @@ def back1():
     m = ReplyKeyboardMarkup(resize_keyboard=True)
     m.insert(KeyboardButton("Bosh menyu"))
     return m
+
+
+confirmation = ReplyKeyboardMarkup(resize_keyboard=True)
+confirmation.insert(KeyboardButton("Ha"))
+confirmation.insert(KeyboardButton("Yo'q"))
