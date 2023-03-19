@@ -10,7 +10,7 @@ from keyboards.default.main import *
 
 @dp.callback_query_handler(text="add_pro")
 async def product_fun(call: types.CallbackQuery):
-    cat = await cats(call.from_user.id)
+    cat = await cats()
     await call.message.delete()
     await call.message.answer("Mahsulot kategoriyasini tanlang", reply_markup=cat)
     await ProductInfo.cat_id.set()

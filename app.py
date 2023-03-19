@@ -12,6 +12,7 @@ async def on_startup(dispatcher):
     await db.create_table_users()
     await db.create_table_category()
     await db.create_table_product()
+    await db.create_table_order()
 
     # Birlamchi komandalar (/start va /help)
     await set_default_commands(dispatcher)

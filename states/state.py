@@ -33,3 +33,8 @@ class BackupState(StatesGroup):
 class PlaceOrder(StatesGroup):
     category = State()
     product = State()
+    wait = State()
+    last = State()
+
+class Cart(StatesGroup):
+    command = State()

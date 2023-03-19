@@ -10,7 +10,7 @@ from keyboards.default.main import *
 
 @dp.callback_query_handler(text="backup")
 async def backup_category(call: types.CallbackQuery):
-    cat = await cats(call.from_user.id)
+    cat = await cats()
     await call.message.edit_text("Zaxiralamoqchi bo'lgan kategoriyangizni tanlang", reply_markup=cat)
     await BackupState.base.set()
 
@@ -19,7 +19,7 @@ async def backup_category(call: types.CallbackQuery):
 async def backup_base(call: types.CallbackQuery, state: FSMContext):
     cat_id = await db.get_data_from_category_id(call.data)
     await state.update_data({"base": cat_id, "base_title": call.data})
-    cat = await cats(call.from_user.id)
+    cat = await cats()
     await call.message.edit_text("Qaysi kategoriyaga zaxiralamoqchisiz", reply_markup=cat)
     await BackupState.next()
 
@@ -60,7 +60,7 @@ async def add_category(call: types.CallbackQuery):
 
 @dp.callback_query_handler(text="del_cat")
 async def add_category(call: types.CallbackQuery):
-    cat = await cats(call.from_user.id)
+    cat = await cats()
     await call.message.edit_text("O'chirish uchun kategoriyani tanlang", reply_markup=cat)
     await DeleteFromDB.confirmation.set()
 

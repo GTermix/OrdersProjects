@@ -79,8 +79,8 @@ class Database:
 
     async def create_table_order(self):
         sql = """
-        CREATE TABLE IF NOT EXISTS order (
-        user_id INT NOT NULL,
+        CREATE TABLE IF NOT EXISTS order_table (
+        user_id BIGINT NOT NULL,
         product_id INT NOT NULL,
         count INT NOT NULL DEFAULT 1
         );
@@ -111,6 +111,26 @@ class Database:
         sql = "SELECT title FROM product WHERE category_id=$1"
         return await self.execute(sql, cat_id, fetch=True, execute=True)
 
+    async def get_data_from_product_title_id(self, pro_id):
+        sql = "SELECT title FROM product WHERE id=$1"
+        return await self.execute(sql, pro_id, fetchval=True, execute=True)
+
+    async def get_data_from_product_cart(self, pro_id):
+        sql = "SELECT title,price,discount FROM product WHERE id=$1"
+        return await self.execute(sql, pro_id, fetch=True, execute=True)
+
+    async def get_data_from_order_table(self, user_id):
+        sql = "SELECT product_id,count FROM order_table WHERE user_id=$1"
+        return await self.execute(sql, int(user_id), fetch=True, execute=True)
+
+    async def get_data_from_product_id(self, cat_id, title):
+        sql = "SELECT id FROM product WHERE category_id=$1 AND title=$2"
+        return await self.execute(sql, cat_id, title, fetchval=True, execute=True)
+
+    async def get_data_from_product_all(self, cat_id, pro_id):
+        sql = "SELECT * FROM product WHERE category_id=$1 AND id=$2"
+        return await self.execute(sql, cat_id, pro_id, fetch=True, execute=True)
+
     async def add_product(self, title, description, category_id, image_url, price, discount):
         sql = "INSERT INTO product (title, description, category_id, image_url, price, discount) VALUES($1, $2, $3, " \
               "$4, $5,$6) returning *"
@@ -120,9 +140,19 @@ class Database:
         sql = "INSERT INTO category (title) VALUES($1) returning *"
         await self.execute(sql, title, fetchrow=True)
 
+    async def get_data_from_order_table_check(self, user_id, pro_id):
+        sql = "SELECT product_id,count FROM order_table WHERE user_id=$1 AND product_id=$2"
+        return await self.execute(sql, int(user_id), int(pro_id), fetchrow=True, execute=True)
+
     async def add_order(self, user_id, product_id, count=1):
-        sql = "INSERT INTO order (user_id, product_id, count) VALUES($1, $2, $3) returning *"
-        return await self.execute(sql, user_id, product_id, count, fetchrow=True)
+        order = await self.get_data_from_order_table_check(user_id, product_id)
+        if order:
+            sql = "UPDATE order_table SET count=$3 WHERE user_id=$1 AND product_id=$2"
+            return await self.execute(sql, int(user_id), int(product_id), int(order['count']) + int(count),
+                                      fetchrow=True)
+        else:
+            sql = "INSERT INTO order_table (user_id, product_id, count) VALUES($1, $2, $3) returning *"
+            return await self.execute(sql, int(user_id), int(product_id), int(count), fetchrow=True)
 
     @staticmethod
     def format_args(sql, parameters: dict):
