@@ -16,6 +16,53 @@ async def product_fun(call: types.CallbackQuery):
     await ProductInfo.cat_id.set()
 
 
+@dp.callback_query_handler(text="del_pro")
+async def add_category(call: types.CallbackQuery):
+    cat = await cats()
+    await call.message.edit_text("O'chirish uchun mahsulot kategoriyani tanlang", reply_markup=cat)
+    await DeleteFromDBPro.confirmation.set()
+
+
+@dp.callback_query_handler(state=DeleteFromDBPro.confirmation)
+async def confirm_del(call: types.CallbackQuery, state: FSMContext):
+    cat_id = await db.get_data_from_category_id(call.data)
+    await state.update_data({"cat_id": cat_id})
+    pro = await prod(cat_id)
+    await call.message.edit_text(
+        f"Ushbu mahsulotni o'chirishga ishonchingiz komilmi ?\n\n<i><b>{call.data}</b></i>\n\nO'chirilgan mahsulootni "
+        f"qayta tiklab bo'lmaydi ammo qayta yaratish mumkin.", reply_markup=pro)
+    await DeleteFromDBPro.next()
+
+
+@dp.callback_query_handler(state=DeleteFromDBPro.sel_pro)
+async def back_to_cat(call: types.CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    pro_id = await db.get_data_from_product_id(data.get("cat_id"), call.data)
+    await state.update_data({"pro_id": pro_id})
+    cat_title = await db.get_data_from_category_title(data.get("cat_id"))
+    fin = f"Rostdan ham {cat_title} kategoriyasidagi {call.data} mahsulotini yo'q qilmoqchimisiz"
+    await call.message.edit_text(fin, reply_markup=confirm)
+    await DeleteFromDBPro.next()
+
+
+@dp.callback_query_handler(text="yes", state=DeleteFromDBPro.deletion)
+async def confirm_del(call: types.CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    await db.delete_product(data.get("cat_id"))
+    await call.message.delete()
+    await call.message.answer("Mahsulot o'chirildi", reply_markup=main_markup(call.from_user.id))
+    await state.finish()
+    await MainState.command.set()
+
+
+@dp.callback_query_handler(text="no", state=DeleteFromDBPro.deletion)
+async def confirm_del(call: types.CallbackQuery, state: FSMContext):
+    await call.message.delete()
+    await call.message.answer("Bosh menyudasiz", reply_markup=main_markup(call.from_user.id))
+    await state.finish()
+    await MainState.command.set()
+
+
 @dp.callback_query_handler(state=ProductInfo.cat_id)
 async def set_category_id(call: types.CallbackQuery, state: FSMContext):
     cat_id = await db.get_data_from_category_id(call.data)
@@ -41,7 +88,7 @@ async def product_desc(message: types.Message, state: FSMContext):
 @dp.message_handler(content_types="photo", state=ProductInfo.picture)
 async def product_photo(message: types.Message, state: FSMContext):
     await state.update_data({"photo": message.photo[-1].file_id})
-    await message.answer("Mahsulot narxini kiriting")
+    await message.answer("Mahsulot narxini kiriting (so'mda)")
     await ProductInfo.next()
 
 

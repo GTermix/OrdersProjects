@@ -46,14 +46,14 @@ async def main_menu_panel(message: M, state: FSMContext):
         await message.answer("Kerakli bo'limni talang", reply_markup=product())
         await state.finish()
     elif msg == "Xabar yuborish":
-        await message.answer("Xabarni kiriting.\nXabaringiz aynan qanday bo;lsa shunday yetkaziladi", reply_markup=back1())
+        await message.answer("Xabarni kiriting.\nXabaringiz aynan qanday bo'lsa shunday yetkaziladi",
+                             reply_markup=back1())
         await SendToUsers.msg.set()
     else:
         await message.answer("Menga tugmalar orqali buyruq bering")
 
 
 @dp.message_handler(text="Bosh menyu", state='*')
-async def back_to_main(message: M, state: FSMContext):
+async def back_to_main(message: M):
     await message.answer("Asosiy menyudasiz", reply_markup=main_markup(message.from_user.id))
-    await state.finish()
     await MainState.command.set()

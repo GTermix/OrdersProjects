@@ -24,6 +24,14 @@ class DeleteFromDB(StatesGroup):
     deletion = State()
 
 
+
+class DeleteFromDBPro(StatesGroup):
+    confirmation = State()
+    sel_pro = State()
+    deletion = State()
+
+
+
 class BackupState(StatesGroup):
     base = State()
     copy = State()

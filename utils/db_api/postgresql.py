@@ -63,6 +63,16 @@ class Database:
         """
         await self.execute(sql, execute=True)
 
+    async def create_table_admins(self):
+        sql = """
+            CREATE TABLE IF NOT EXISTS admins_table (
+            id SERIAL PRIMARY KEY,
+            telegram_id BIGINT NOT NULL UNIQUE,
+            username VARCHAR(255) NULL UNIQUE
+            );
+            """
+        await self.execute(sql, execute=True)
+
     async def create_table_product(self):
         """Productlar jadvalini yaratish"""
         sql = """
@@ -148,6 +158,17 @@ class Database:
         sql = "SELECT * FROM product WHERE category_id=$1 AND id=$2"
         return await self.execute(sql, cat_id, pro_id, fetch=True, execute=True)
 
+    async def get_all_admins(self):
+        sql = "SELECT telegram_id,username FROM admins_table"
+        return await self.execute(sql, fetch=True, execute=True)
+
+    async def delete_admin(self, user_id: int, username: str = None):
+        if username:
+            sql = f"DELETE FROM admins_table WHERE telegram_id={int(user_id)} AND username={username};"
+        else:
+            sql = f"DELETE FROM admins_table WHERE telegram_id={int(user_id)};"
+        return await self.execute(sql, execute=True)
+
     async def add_product(self, title, description, category_id, image_url, price, discount):
         sql = "INSERT INTO product (title, description, category_id, image_url, price, discount) VALUES($1, $2, $3, " \
               "$4, $5,$6) returning *"
@@ -156,6 +177,10 @@ class Database:
     async def add_category(self, title: str):
         sql = "INSERT INTO category (title) VALUES($1) returning *"
         await self.execute(sql, title, fetchrow=True)
+
+    async def add_admin(self, telegram_id, username: str = None):
+        sql = "INSERT INTO users_table (telegram_id, username) VALUES($1, $2) returning *"
+        await self.execute(sql, telegram_id, username, fetchrow=True, execute=True)
 
     async def get_data_from_order_table_check(self, user_id, pro_id):
         sql = "SELECT product_id,count FROM order_table WHERE user_id=$1 AND product_id=$2"
@@ -206,11 +231,12 @@ class Database:
     async def delete_users(self):
         await self.execute("DELETE FROM Users WHERE TRUE", execute=True)
 
-    async def delete_category(self, id):
-        await self.execute("DELETE FROM category WHERE id=$1", id, execute=True)
+    async def delete_category(self, cat_id):
+        await self.execute("DELETE FROM category WHERE id=$1", cat_id, execute=True)
+        await self.execute("DELETE FROM product WHERE category_id=$1", cat_id, execute=True)
 
-    async def delete_product(self, id):
-        await self.execute("DELETE FROM product WHERE id=$1", id, execute=True)
+    async def delete_product(self, p_id, cat_id):
+        await self.execute("DELETE FROM product WHERE id=$1 AND category_id=$2", p_id, cat_id, execute=True)
 
     async def drop_users(self):
         await self.execute("DROP TABLE Users", execute=True)
