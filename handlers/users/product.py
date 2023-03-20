@@ -29,9 +29,15 @@ async def confirm_del(call: types.CallbackQuery, state: FSMContext):
     await state.update_data({"cat_id": cat_id})
     pro = await prod(cat_id)
     await call.message.edit_text(
-        f"Ushbu mahsulotni o'chirishga ishonchingiz komilmi ?\n\n<i><b>{call.data}</b></i>\n\nO'chirilgan mahsulootni "
-        f"qayta tiklab bo'lmaydi ammo qayta yaratish mumkin.", reply_markup=pro)
+        f"Mahsulotni o'chirish uchun <i><b>{call.data}</b></i> kategoriyasidagi mahsulotni tanlang", reply_markup=pro)
     await DeleteFromDBPro.next()
+
+
+@dp.callback_query_handler(text="back_cat", state=DeleteFromDBPro.sel_pro)
+async def back_to_cat(call: types.CallbackQuery, state: FSMContext):
+    cat = await cats()
+    await call.message.edit_text("O'chirish uchun mahsulot kategoriyani tanlang", reply_markup=cat)
+    await DeleteFromDBPro.confirmation.set()
 
 
 @dp.callback_query_handler(state=DeleteFromDBPro.sel_pro)
@@ -48,7 +54,7 @@ async def back_to_cat(call: types.CallbackQuery, state: FSMContext):
 @dp.callback_query_handler(text="yes", state=DeleteFromDBPro.deletion)
 async def confirm_del(call: types.CallbackQuery, state: FSMContext):
     data = await state.get_data()
-    await db.delete_product(data.get("cat_id"))
+    await db.delete_product(data.get('pro_id'), data.get("cat_id"))
     await call.message.delete()
     await call.message.answer("Mahsulot o'chirildi", reply_markup=main_markup(call.from_user.id))
     await state.finish()

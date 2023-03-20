@@ -55,3 +55,6 @@ salary.add(InlineKeyboardButton("✅ Bajarildi", callback_data='done'))
 contact_with = InlineKeyboardMarkup()
 contact_with.add(InlineKeyboardButton("Dasturchi", url="https://t.me/yuldashevb_0221"))
 contact_with.add(InlineKeyboardButton("Admin", url="https://t.me/yuldoshev"))
+
+restart = InlineKeyboardMarkup()
+restart.add(InlineKeyboardButton("Botni qayta ishga tushirish", url="https://t.me/my_c0mmand3r_bot?start=start"))

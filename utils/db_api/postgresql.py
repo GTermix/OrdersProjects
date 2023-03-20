@@ -67,8 +67,7 @@ class Database:
         sql = """
             CREATE TABLE IF NOT EXISTS admins_table (
             id SERIAL PRIMARY KEY,
-            telegram_id BIGINT NOT NULL UNIQUE,
-            username VARCHAR(255) NULL UNIQUE
+            telegram_id BIGINT NOT NULL UNIQUE
             );
             """
         await self.execute(sql, execute=True)
@@ -159,14 +158,11 @@ class Database:
         return await self.execute(sql, cat_id, pro_id, fetch=True, execute=True)
 
     async def get_all_admins(self):
-        sql = "SELECT telegram_id,username FROM admins_table"
+        sql = "SELECT telegram_id FROM admins_table"
         return await self.execute(sql, fetch=True, execute=True)
 
-    async def delete_admin(self, user_id: int, username: str = None):
-        if username:
-            sql = f"DELETE FROM admins_table WHERE telegram_id={int(user_id)} AND username={username};"
-        else:
-            sql = f"DELETE FROM admins_table WHERE telegram_id={int(user_id)};"
+    async def delete_admin(self, user_id: int):
+        sql = f"DELETE FROM admins_table WHERE telegram_id={int(user_id)};"
         return await self.execute(sql, execute=True)
 
     async def add_product(self, title, description, category_id, image_url, price, discount):
@@ -178,9 +174,14 @@ class Database:
         sql = "INSERT INTO category (title) VALUES($1) returning *"
         await self.execute(sql, title, fetchrow=True)
 
-    async def add_admin(self, telegram_id, username: str = None):
-        sql = "INSERT INTO users_table (telegram_id, username) VALUES($1, $2) returning *"
-        await self.execute(sql, telegram_id, username, fetchrow=True, execute=True)
+    async def add_admin(self, telegram_id):
+        admins = await self.get_all_admins()
+        for admin in admins:
+            if admin['telegram_id'] == int(telegram_id):
+                break
+        else:
+            sql = "INSERT INTO admins_table (telegram_id) VALUES($1) returning *"
+            await self.execute(sql, telegram_id, fetchrow=True, execute=True)
 
     async def get_data_from_order_table_check(self, user_id, pro_id):
         sql = "SELECT product_id,count FROM order_table WHERE user_id=$1 AND product_id=$2"

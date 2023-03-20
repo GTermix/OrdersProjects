@@ -24,12 +24,15 @@ class DeleteFromDB(StatesGroup):
     deletion = State()
 
 
-
 class DeleteFromDBPro(StatesGroup):
     confirmation = State()
     sel_pro = State()
     deletion = State()
 
+
+class AdminRight(StatesGroup):
+    send_id = State()
+    del_admin = State()
 
 
 class BackupState(StatesGroup):
