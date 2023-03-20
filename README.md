@@ -1,2 +1,2 @@
-# Aiogram-Template
-Pythonda Aiogramdan foydalanib bot yaratish uchun shablon
+# Aiogram Python eShop project 
+Online eShop project crerated with python aiogram and ♥
