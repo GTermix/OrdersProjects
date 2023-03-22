@@ -165,6 +165,11 @@ class Database:
         sql = f"DELETE FROM admins_table WHERE telegram_id={int(user_id)};"
         return await self.execute(sql, execute=True)
 
+    async def delete_order(self, user_id: int):
+        sql = f"DELETE FROM order_table WHERE user_id={int(user_id)};"
+        return await self.execute(sql, execute=True)
+
+
     async def add_product(self, title, description, category_id, image_url, price, discount):
         sql = "INSERT INTO product (title, description, category_id, image_url, price, discount) VALUES($1, $2, $3, " \
               "$4, $5,$6) returning *"

@@ -8,6 +8,12 @@ from keyboards.inline.main import *
 from keyboards.default.main import *
 
 
+@dp.message_handler(text="Bosh menyu", state='*')
+async def back_to_main(message: M):
+    await message.answer("Asosiy menyudasiz", reply_markup=main_markup(message.from_user.id))
+    await MainState.command.set()
+
+
 @dp.message_handler(commands=["set_admin"], state='*')
 async def admins(message: M):
     admins_list = await db.get_all_admins()
@@ -41,7 +47,7 @@ async def rights(message: M, state: FSMContext):
 
 @dp.message_handler(commands=["up_admin"], chat_id=ADMINS, state='*')
 async def admin(message: M):
-    await message.answer("Menga yangi admin id sini yuboring",reply_markup=back1())
+    await message.answer("Menga yangi admin id sini yuboring", reply_markup=back1())
     await AdminRight.send_id.set()
 
 
@@ -63,6 +69,7 @@ async def main_menu_panel(message: M, state: FSMContext):
         await state.finish()
         await PlaceOrder.category.set()
     elif msg == "Savatcha":
+        await message.answer("Savatcha bo'limidasiz", reply_markup=back1())
         msg = "Savatchangizdagi, buyurtma qilgan mahsulotlaringiz:\n\n\n"
         c = await db.get_data_from_order_table(message.from_user.id)
         my_cart = ''
@@ -72,13 +79,15 @@ async def main_menu_panel(message: M, state: FSMContext):
                 my_cart_data = await db.get_data_from_product_cart(k['product_id'])
                 price = k['count']
                 for j in my_cart_data:
-                    my_cart += f"Mahsulot nomi: {j['title']}\nMahsulotlar soni {price}\nMahsulotlar narxi: " \
+                    my_cart += f"Mahsulot nomi: {j['title']}\nMahsulotlar soni {price}\nMahsulotlar narxi(chegirmalar bilan): " \
                                f"{(float(j['price']) * ((100 - j['discount']) / 100)) * price} so'm\n\n"
                     total_price += (float(j['price']) * ((100 - j['discount']) / 100)) * price
             ans = msg + my_cart + f"Jami to'lov summasi: {total_price} so'm"
+            await message.answer(ans, reply_markup=cart_menu)
         else:
             ans = f"Hozircha savatchangiz bo'sh harid qiling va savatchangizni to'ldiring"
-        await message.answer(ans)
+            await message.answer(ans)
+        await state.finish()
     elif msg == "Bog'lanish":
         await message.answer("Admin bilan bog'lanish", reply_markup=contact_with)
     elif msg == "Kategoriya paneli":
@@ -98,7 +107,9 @@ async def main_menu_panel(message: M, state: FSMContext):
         await message.answer("Menga tugmalar orqali buyruq bering")
 
 
-@dp.message_handler(text="Bosh menyu", state='*')
-async def back_to_main(message: M):
-    await message.answer("Asosiy menyudasiz", reply_markup=main_markup(message.from_user.id))
-    await MainState.command.set()
+@dp.callback_query_handler(text="del_cart")
+async def del_cart(call: types.CallbackQuery):
+    await db.delete_order(call.from_user.id)
+    await call.message.delete()
+    await call.message.answer("Savatchangiz tozalandi kerakli narsalaringiz bo'lsa buyurtma berishingiz mumkin",
+                              reply_markup=back1())

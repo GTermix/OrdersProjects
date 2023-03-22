@@ -58,3 +58,6 @@ contact_with.add(InlineKeyboardButton("Admin", url="https://t.me/yuldoshev"))
 
 restart = InlineKeyboardMarkup()
 restart.add(InlineKeyboardButton("Botni qayta ishga tushirish", url="https://t.me/my_c0mmand3r_bot?start=start"))
+
+cart_menu = InlineKeyboardMarkup()
+cart_menu.add(InlineKeyboardButton("Savatchani tozalash",callback_data="del_cart"))

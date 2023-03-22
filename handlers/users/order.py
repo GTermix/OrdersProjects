@@ -85,26 +85,44 @@ async def d(call: types.CallbackQuery, state: FSMContext):
 
 @dp.callback_query_handler(text="done", state=PlaceOrder.last)
 async def callme(call: types.CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    info = await db.get_data_from_product_all(data.get("cat_id"), data.get('pro_id'))
+    info = info[0]
     global summa
     if not summa:
         summa = '1'
     cm = await state.get_data()
     await state.update_data({"count": summa})
-    await call.message.edit_text(f"Bajarildi!\n{summa} ta mahsulot savatgchaga qo'shildi", reply_markup=None)
+    await call.message.edit_text(
+        f"Bajarildi!\n{summa} ta mahsulot savatgchaga qo'shildi\nMahsulot uchun summa "
+        f"{int(summa) * float(info['price']) * ((100 - float(info['discount'])) / 100)} so'm",
+        reply_markup=None)
     await db.add_order(call.from_user.id, cm.get('pro_id'), summa)
     summa = ''
 
 
 @dp.callback_query_handler(text="clear", state=PlaceOrder.last)
-async def callme(call: types.CallbackQuery):
+async def callme(call: types.CallbackQuery, state: FSMContext):
     global summa
     summa = "0"
-    await call.message.edit_text(f"Buyurmoqchi bo'lgan mahsulotingiz soni: <b>{summa}</b> ta", reply_markup=salary)
+    data = await state.get_data()
+    info = await db.get_data_from_product_all(data.get("cat_id"), data.get('pro_id'))
+    info = info[0]
+    await call.message.edit_text(
+        f"Buyurmoqchi bo'lgan mahsulotingiz soni: <b>{summa}</b> ta\nMahsulot uchun summa "
+        f"{int(summa) * float(info['price']) * ((100 - float(info['discount'])) / 100)} so'm",
+        reply_markup=salary)
     summa = ""
 
 
 @dp.callback_query_handler(state=PlaceOrder.last)
-async def callme(call: types.CallbackQuery):
+async def callme(call: types.CallbackQuery, state: FSMContext):
     global summa
+    data = await state.get_data()
+    info = await db.get_data_from_product_all(data.get("cat_id"), data.get('pro_id'))
+    info = info[0]
     summa += call.data
-    await call.message.edit_text(f"Buyurmoqchi bo'lgan mahsulotingiz soni: <b>{summa}</b> ta", reply_markup=salary)
+    await call.message.edit_text(
+        f"Buyurmoqchi bo'lgan mahsulotingiz soni: <b>{summa}</b> ta\nMahsulot uchun summa "
+        f"{int(summa) * float(info['price']) * ((100 - float(info['discount'])) / 100)} so'm",
+        reply_markup=salary)
