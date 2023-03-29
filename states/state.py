@@ -56,3 +56,7 @@ class SendToUsers(StatesGroup):
     msg = State()
     random_send = State()
     random_num = State()
+
+
+class Classify(StatesGroup):
+    comm = State()

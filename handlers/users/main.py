@@ -88,7 +88,8 @@ async def main_menu_panel(message: M, state: FSMContext):
         else:
             ans = f"Hozircha savatchangiz bo'sh harid qiling va savatchangizni to'ldiring"
             await message.answer(ans)
-        await state.finish()
+        await state.set_data({"total_price": total_price * 100})
+        await Classify.comm.set()
     elif msg == "Bog'lanish":
         await message.answer("Admin bilan bog'lanish", reply_markup=contact_with)
     elif msg == "Kategoriya paneli":
@@ -116,19 +117,25 @@ async def del_cart(call: types.CallbackQuery):
                               reply_markup=back1())
 
 
-@dp.callback_query_handler(text="reg")
-async def del_cart(call: types.CallbackQuery):
+@dp.callback_query_handler(text="reg", state=Classify.comm)
+async def del_cart(call: types.CallbackQuery, state: FSMContext):
+    data = await state.get_data()
     await bot.send_invoice(call.from_user.id,
-                           title='Working Time Machine',
-                           description='Want to visit your great-great-great-grandparents?'
-                                       ' Make a fortune at the races?'
-                                       ' Shake hands with Hammurabi and take a stroll in the Hanging Gardens?'
-                                       ' Order our Working Time Machine today!',
+                           title='Mahsulot uchun to\'lov',
+                           description="Mahsulotlaringizni rasmiyalshtirish uchun invoys(online to'lov)ni amalga oshiring",
                            provider_token=PAYMENT_TOKEN,
                            currency='uzs',
-                           is_flexible=True,  # True If you need to set up Shipping Fee
-                           prices=prices,
+                           need_name=True,
+                           need_email=True,
+                           need_phone_number=True,
+                           photo_url="https://ibb.co/HKWSkNP",
+                           photo_size=2048,
+                           photo_height=980,
+                           photo_width=1470,
+                           is_flexible=True,
+                           prices=get_prices(data.get("total_price")),
                            start_parameter='time-machine-example',
                            payload='HAPPY FRIDAYS COUPON'
                            )
+    await state.finish()
     await call.answer()
