@@ -61,3 +61,4 @@ restart.add(InlineKeyboardButton("Botni qayta ishga tushirish", url="https://t.m
 
 cart_menu = InlineKeyboardMarkup()
 cart_menu.add(InlineKeyboardButton("Savatchani tozalash",callback_data="del_cart"))
+cart_menu.add(InlineKeyboardButton("Rasmiylashtirish",callback_data="reg"))

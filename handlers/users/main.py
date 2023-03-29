@@ -1,11 +1,12 @@
 from loader import dp, db, bot
-from data.config import ADMINS
+from data.config import ADMINS, PAYMENT_TOKEN
 from aiogram import types
 from aiogram.types import Message as M, ReplyKeyboardRemove
 from aiogram.dispatcher import FSMContext
 from states.state import *
 from keyboards.inline.main import *
 from keyboards.default.main import *
+from handlers.users.payment import *
 
 
 @dp.message_handler(text="Bosh menyu", state='*')
@@ -113,3 +114,21 @@ async def del_cart(call: types.CallbackQuery):
     await call.message.delete()
     await call.message.answer("Savatchangiz tozalandi kerakli narsalaringiz bo'lsa buyurtma berishingiz mumkin",
                               reply_markup=back1())
+
+
+@dp.callback_query_handler(text="reg")
+async def del_cart(call: types.CallbackQuery):
+    await bot.send_invoice(call.from_user.id,
+                           title='Working Time Machine',
+                           description='Want to visit your great-great-great-grandparents?'
+                                       ' Make a fortune at the races?'
+                                       ' Shake hands with Hammurabi and take a stroll in the Hanging Gardens?'
+                                       ' Order our Working Time Machine today!',
+                           provider_token=PAYMENT_TOKEN,
+                           currency='uzs',
+                           is_flexible=True,  # True If you need to set up Shipping Fee
+                           prices=prices,
+                           start_parameter='time-machine-example',
+                           payload='HAPPY FRIDAYS COUPON'
+                           )
+    await call.answer()
