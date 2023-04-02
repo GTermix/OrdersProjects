@@ -7,3 +7,4 @@ from . import send_message
 from . import category
 from . import product
 from . import order
+from . import check

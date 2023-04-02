@@ -127,7 +127,7 @@ async def del_cart(call: types.CallbackQuery):
                            provider_token=PAYMENT_TOKEN,
                            currency='uzs',
                            is_flexible=True,  # True If you need to set up Shipping Fee
-                           prices=prices,
+                           prices=get_prices(),
                            start_parameter='time-machine-example',
                            payload='HAPPY FRIDAYS COUPON'
                            )

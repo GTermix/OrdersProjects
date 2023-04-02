@@ -1,4 +1,5 @@
 from aiogram import Dispatcher
+from . import checksub
 
 from loader import dp
 from .throttling import ThrottlingMiddleware
