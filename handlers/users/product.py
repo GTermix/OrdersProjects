@@ -73,6 +73,7 @@ async def confirm_del(call: types.CallbackQuery, state: FSMContext):
 async def set_category_id(call: types.CallbackQuery, state: FSMContext):
     cat_id = await db.get_data_from_category_id(call.data)
     await state.update_data({"cat_id": cat_id})
+    await call.message.delete()
     await call.message.answer("Masulot nomini kiriting", reply_markup=None)
     await ProductInfo.title.set()
 

@@ -11,6 +11,7 @@ shipping_options = [
 
 def get_prices(price_):
     prices = [
-        types.LabeledPrice(label='Mahsulotlar narxi', amount=price_)
+        types.LabeledPrice(label='Mahsulotlar narxi', amount=int(price_)),
+        types.LabeledPrice(label="O'zbekiston bo'yicha yetkazib berish", amount=int(price_ - (price_ * 0.9)))
     ]
     return prices

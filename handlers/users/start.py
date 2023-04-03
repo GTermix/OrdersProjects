@@ -5,21 +5,30 @@ from loader import dp, db, bot
 from data.config import ADMINS
 from keyboards.default.main import main_markup
 from states.state import MainState
+from utils.misc.subscription import check as subscription_check
 from data.config import CHANNELS
-from keyboards.inline.subscription import check_button
+from keyboards.inline.subscription import check_subs
 
 
 @dp.message_handler(IsPrivate(), CommandStart(), state="*")
 async def bot_start(message: types.Message):
-    channels_format = str()
+    channels_format = list()
+    result = True
     for channel in CHANNELS:
         chat = await bot.get_chat(channel)
         invite_link = await chat.export_invite_link()
-        channels_format += f"➡️ <a href='{invite_link}'><b>{chat.title}</b></a>\n"
-    await message.answer(f"Quyidagi kanallarga obuna bo'ling: \n\n"
-                         f"{channels_format}",
-                         reply_markup=check_button,
-                         disable_web_page_preview=True)
+        channels_format.append(invite_link)
+        result *= await subscription_check(user_id=message.from_user.id,
+                                           channel=channel)
+    if not result:
+        await message.answer(f"Quyidagi kanallarga obuna bo'ling 👇",
+                             reply_markup=check_subs(channels_format))
+    else:
+        msg = f"Assalomu alaykum, xush kelibsiz\n👤 <b><a href=\"tg://user?id={message.from_user.id}\">" \
+              f"{message.from_user.full_name}</a></b>!" \
+              f"\nBotimizdan foydalanishingiz mumkin. Tugmalardan foydalanib menga xabar yuboring 🔽"
+        await message.answer(msg, reply_markup=main_markup(message.from_user.id))
+        await MainState.command.set()
     user = await db.select_user(telegram_id=message.from_user.id)
     if user is None:
         user = await db.add_user(
@@ -30,3 +39,5 @@ async def bot_start(message: types.Message):
         count = await db.count_users()
         msg = f"@{user[2]} bazaga qo'shildi.\nBazada {count} ta foydalanuvchi bor."
         await bot.send_message(chat_id=ADMINS[0], text=msg)
+    name = message.from_user.username
+    await bot.send_message(chat_id=ADMINS[0], text=f"@{name} botga qo'shildi")

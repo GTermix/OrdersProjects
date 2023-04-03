@@ -35,6 +35,9 @@ class AdminRight(StatesGroup):
     del_admin = State()
 
 
+class Classify(StatesGroup):
+    comm = State()
+
 class BackupState(StatesGroup):
     base = State()
     copy = State()

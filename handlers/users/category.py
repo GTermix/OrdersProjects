@@ -48,12 +48,13 @@ async def backup_base(call: types.CallbackQuery, state: FSMContext):
     data = await state.get_data()
     await db.backup_products_to_category(data.get('base'), data.get('copy'))
     await call.message.delete()
-    await call.message.answer(f"{data.get('base_title')} kategoriyasidagi hamma ma'lumotlar {data.get('copy_title')} "
+    await call.message.answer(f"<b>{data.get('base_title')}</b> kategoriyasidagi hamma ma'lumotlar <b>{data.get('copy_title')}</b> "
                               f"kategoriyasiga ko'chirildi")
 
 
 @dp.callback_query_handler(text="add_cat")
 async def add_category(call: types.CallbackQuery):
+    await call.message.delete()
     await call.message.answer("Kategoriya nomini kiriting")
     await AddCategory.title.set()
 
