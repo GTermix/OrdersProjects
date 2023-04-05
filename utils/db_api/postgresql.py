@@ -18,7 +18,7 @@ class Database:
             password=config.DB_PASS,
             host=config.DB_HOST,
             database=config.DB_NAME,
-            port=5432
+            port=5433
         )
 
     async def execute(
@@ -49,7 +49,8 @@ class Database:
         id SERIAL PRIMARY KEY,
         full_name VARCHAR(255) NOT NULL,
         username varchar(255) NULL,
-        telegram_id BIGINT NOT NULL UNIQUE
+        telegram_id BIGINT NOT NULL UNIQUE,
+        lang_code VARCHAR(4) NOT NULL
         );
         """
         await self.execute(sql, execute=True)
@@ -129,9 +130,9 @@ class Database:
         sql = "SELECT id FROM category WHERE title=$1"
         return await self.execute(sql, title, fetchval=True, execute=True)
 
-    async def get_data_from_category_title(self, id):
+    async def get_data_from_category_title(self, id_1):
         sql = "SELECT title FROM category WHERE id=$1"
-        return await self.execute(sql, id, fetchval=True, execute=True)
+        return await self.execute(sql, id_1, fetchval=True, execute=True)
 
     async def get_data_from_product_title(self, cat_id):
         sql = "SELECT title FROM product WHERE category_id=$1"
@@ -169,7 +170,6 @@ class Database:
         sql = f"DELETE FROM order_table WHERE user_id={int(user_id)};"
         return await self.execute(sql, execute=True)
 
-
     async def add_product(self, title, description, category_id, image_url, price, discount):
         sql = "INSERT INTO product (title, description, category_id, image_url, price, discount) VALUES($1, $2, $3, " \
               "$4, $5,$6) returning *"
@@ -192,6 +192,10 @@ class Database:
         sql = "SELECT product_id,count FROM order_table WHERE user_id=$1 AND product_id=$2"
         return await self.execute(sql, int(user_id), int(pro_id), fetchrow=True, execute=True)
 
+    async def get_user_lang_code(self, user_id):
+        sql = "SELECT lang_code FROM users WHERE telegram_id=$1"
+        return await self.execute(sql, int(user_id), fetchval=True, execute=True)
+
     async def add_order(self, user_id, product_id, count=1):
         order = await self.get_data_from_order_table_check(user_id, product_id)
         if order:
@@ -209,8 +213,12 @@ class Database:
         )
         return sql, tuple(parameters.values())
 
+    async def add_user_lang_code(self, lang_code, user_id):
+        sql = "UPDATE users SET lang_code=$1 WHERE telegram_id=$2"
+        await self.execute(sql, lang_code, user_id, execute=True, fetchrow=True)
+
     async def add_user(self, full_name, username, telegram_id):
-        sql = "INSERT INTO users (full_name, username, telegram_id) VALUES($1, $2, $3) returning *"
+        sql = "INSERT INTO users (full_name, username, telegram_id,lang_code) VALUES($1, $2, $3, NULL) returning *"
         return await self.execute(sql, full_name, username, telegram_id, fetchrow=True)
 
     async def select_all_users(self):
