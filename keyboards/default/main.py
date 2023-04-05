@@ -13,6 +13,13 @@ def main_markup(chatId):
     return main
 
 
+def send_messages():
+    rmk = ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
+    rmk.add(KeyboardButton("Foydalanuvchilarga xabar yuborish"))
+    rmk.add(KeyboardButton("Guruh(kanal)larga xabar yuborish"))
+    return rmk
+
+
 def back1():
     m = ReplyKeyboardMarkup(resize_keyboard=True)
     m.insert(KeyboardButton("Bosh menyu"))

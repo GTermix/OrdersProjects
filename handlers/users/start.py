@@ -8,10 +8,13 @@ from states.state import MainState
 from utils.misc.subscription import check as subscription_check
 from data.config import CHANNELS
 from keyboards.inline.subscription import check_subs
+from utils.set_bot_commands import set_default_admin_commands
 
 
 @dp.message_handler(IsPrivate(), CommandStart(), state="*")
 async def bot_start(message: types.Message):
+    if message.from_user.id in ADMINS:
+        await set_default_admin_commands(dp)
     channels_format = list()
     result = True
     for channel in CHANNELS:

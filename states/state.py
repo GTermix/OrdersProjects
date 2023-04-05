@@ -38,6 +38,7 @@ class AdminRight(StatesGroup):
 class Classify(StatesGroup):
     comm = State()
 
+
 class BackupState(StatesGroup):
     base = State()
     copy = State()
@@ -59,3 +60,11 @@ class SendToUsers(StatesGroup):
     msg = State()
     random_send = State()
     random_num = State()
+
+
+class SendToChannels(StatesGroup):
+    msg = State()
+
+
+class SendType(StatesGroup):
+    choosen = State()

@@ -103,14 +103,14 @@ async def main_menu_panel(message: M, state: FSMContext):
         await message.answer("Kerakli bo'limni talang", reply_markup=product())
         await state.finish()
     elif msg == "Xabar yuborish":
-        await message.answer("Xabarni kiriting.\nXabaringiz aynan qanday bo'lsa shunday yetkaziladi",
-                             reply_markup=back1())
-        await SendToUsers.msg.set()
+        await message.answer("Aynan kimga xabar yubormoqchisiz",
+                             reply_markup=send_messages())
+        await SendType.choosen.set()
     else:
         await message.answer("Menga tugmalar orqali buyruq bering")
 
 
-@dp.callback_query_handler(text="del_cart")
+@dp.callback_query_handler(text="del_cart", state=Classify.comm)
 async def del_cart(call: types.CallbackQuery):
     await db.delete_order(call.from_user.id)
     await call.message.delete()

@@ -1,6 +1,6 @@
 import asyncio
 import random
-
+from data.config import CHANNELS
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from loader import dp, bot, db
@@ -8,7 +8,27 @@ from states.state import *
 from keyboards.default.main import *
 
 
-@dp.message_handler(lambda message: message.text != "Bosh menyu", content_types=["any"], state=SendToUsers.msg)
+@dp.message_handler(state=SendType.choosen)
+async def send(message: types.Message):
+    msg = message.text
+    await message.answer("Xabarni kiriting.\nXabaringiz aynan qanday bo'lsa shunday yetkaziladi",
+                         reply_markup=back1())
+    if msg == "Foydalanuvchilarga xabar yuborish":
+        await SendToUsers.msg.set()
+    elif msg == "Guruh(kanal)larga xabar yuborish":
+        await SendToChannels.msg.set()
+
+
+@dp.message_handler(state=SendToChannels.msg)
+async def to_channels(message: types.Message, state: FSMContext):
+    for chat in CHANNELS:
+        chat_id = await message.answer(f"Xabaringiz {chat} kanal(guruh)ga yetkazildi",
+                                       reply_markup=main_markup(message.from_user.id))
+        await bot.copy_message(chat, message.from_user.id, chat_id.message_id - 1)
+    await MainState.command.set()
+
+
+@dp.message_handler(content_types=["any"], state=SendToUsers.msg)
 async def send_msg(message: types.Message, state: FSMContext):
     await message.answer(
         "Random orqali yuborilsinmi. Random orqali aksiyalar qilishingiz mumkin misol uchun 100 ta odam uchun siz "
@@ -20,7 +40,7 @@ async def send_msg(message: types.Message, state: FSMContext):
     await SendToUsers.next()
 
 
-@dp.message_handler(lambda message: message.text != "Bosh menyu", state=SendToUsers.random_send)
+@dp.message_handler(state=SendToUsers.random_send)
 async def send_msg(message: types.Message, state: FSMContext):
     msg = message.text
     data = await state.get_data()
@@ -32,9 +52,12 @@ async def send_msg(message: types.Message, state: FSMContext):
         user_ids = await db.get_data_from_user_id()
         if user_ids:
             for i in user_ids:
-                await message.answer(f"Xabar [Foydalanuvchiga yetkazildi](tg://user?id={i['telegram_id']})",
-                                     parse_mode="markdown")
-                await bot.copy_message(i['telegram_id'], data.get("chat_id"), data.get("msg_id"))
+                try:
+                    await message.answer(f"Xabar [Foydalanuvchiga yetkazildi](tg://user?id={i['telegram_id']})",
+                                         parse_mode="markdown")
+                    await bot.copy_message(i['telegram_id'], data.get("chat_id"), data.get("msg_id"))
+                except Exception as err:
+                    pass
                 await asyncio.sleep(0.05)
             else:
                 await message.answer("Xabar barcha foydalanuvhilarga yetkazildi", reply_markup=back1())
@@ -54,10 +77,13 @@ async def ran_num(message: types.Message, state: FSMContext):
         while not numbers == 0:
             random_user = random.choice(user_ids)
             if random_user not in sent_users:
-                print(random_user['telegram_id'])
-                await message.answer(f"Xabar [Foydalanuvchiga yetkazildi](tg://user?id={random_user['telegram_id']})",
-                                     parse_mode="markdown")
-                await bot.copy_message(random_user['telegram_id'], data.get("chat_id"), data.get("msg_id"))
+                try:
+                    await bot.copy_message(random_user['telegram_id'], data.get("chat_id"), data.get("msg_id"))
+                    await message.answer(
+                        f"Xabar [Foydalanuvchiga yetkazildi](tg://user?id={random_user['telegram_id']})",
+                        parse_mode="markdown")
+                except Exception as err:
+                    pass
                 await asyncio.sleep(0.05)
                 sent_users.append(random_user)
             else:
