@@ -74,7 +74,6 @@ class Database:
         await self.execute(sql, execute=True)
 
     async def create_table_product(self):
-        """Productlar jadvalini yaratish"""
         sql = """
         CREATE TABLE IF NOT EXISTS product (
         id SERIAL PRIMARY KEY,

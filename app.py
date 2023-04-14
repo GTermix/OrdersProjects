@@ -8,7 +8,6 @@ from data.admin_rights import make_admins_forever
 
 
 async def on_startup(dispatcher):
-    # Ma'lumotlar bazasini yaratamiz:
     await db.create()
     await db.create_table_users()
     await db.create_table_category()
@@ -17,10 +16,8 @@ async def on_startup(dispatcher):
     await db.create_table_admins()
     await make_admins_forever(db)
 
-    # Birlamchi komandalar (/start va /help)
     await set_default_commands(dispatcher)
 
-    # Bot ishga tushgani haqida adminga xabar berish
     await on_startup_notify(dispatcher)
 
 
